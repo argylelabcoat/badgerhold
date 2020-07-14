@@ -20,6 +20,9 @@ type DecodeFunc func(data []byte, value interface{}) error
 var encode EncodeFunc
 var decode DecodeFunc
 
+var DefaultEncode = MsgPackEncode
+var DefaultDecode = MsgPackDecode
+
 // GobEncode was the default encoding func for badgerhold (Gob)
 func GobEncode(value interface{}) ([]byte, error) {
 	var buff bytes.Buffer
