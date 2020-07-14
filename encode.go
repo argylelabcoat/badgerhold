@@ -7,34 +7,9 @@ package badgerhold
 import (
 	"bytes"
 	"encoding/gob"
-	"reflect"
-	"time"
 
-	"github.com/shamaton/msgpack"
-	"github.com/ugorji/go/codec"
+	"github.com/fxamacker/cbor/v2"
 )
-
-type TimeExt struct{}
-
-func (x TimeExt) ConvertExt(v interface{}) interface{} {
-	v2 := v.(*time.Time) // structs are encoded by passing the ptr
-	return v2.UTC().UnixNano()
-}
-func (x TimeExt) UpdateExt(dest interface{}, v interface{}) {
-	tt := dest.(*time.Time)
-	*tt = time.Unix(0, v.(int64)).UTC()
-}
-
-var (
-	bh codec.BincHandle
-	mh codec.MsgpackHandle
-	ch codec.CborHandle
-)
-
-func init() {
-
-	mh.SetInterfaceExt(reflect.TypeOf(time.Time{}), 1, TimeExt{})
-}
 
 // EncodeFunc is a function for encoding a value into bytes
 type EncodeFunc func(value interface{}) ([]byte, error)
@@ -48,11 +23,16 @@ var decode DecodeFunc
 // var DefaultEncode = GobEncode
 // var DefaultDecode = GobDecode
 
-var DefaultEncode = CodecMsgPackEncode
-var DefaultDecode = CodecMsgPackDecode
+var DefaultEncode = CborEncode
+var DefaultDecode = CborDecode
 
-// var DefaultEncode = MsgPackEncode
-// var DefaultDecode = MsgPackDecode
+var cborEncOpts = cbor.CanonicalEncOptions()
+var cborEncMode cbor.EncMode
+
+func init() {
+	cborEncOpts.Time = cbor.TimeRFC3339Nano
+	cborEncMode, _ = cborEncOpts.EncMode()
+}
 
 // GobEncode was the default encoding func for badgerhold (Gob)
 func GobEncode(value interface{}) ([]byte, error) {
@@ -81,24 +61,12 @@ func GobDecode(data []byte, value interface{}) error {
 	return de.Decode(value)
 }
 
-func CodecMsgPackEncode(value interface{}) ([]byte, error) {
-	var b []byte
-	enc := codec.NewEncoderBytes(&b, &mh)
-	err := enc.Encode(value)
-	return b, err
+func CborEncode(value interface{}) ([]byte, error) {
+	return cborEncMode.Marshal(value)
 }
 
-func CodecMsgPackDecode(data []byte, value interface{}) error {
-	dec := codec.NewDecoderBytes(data, &mh)
-	return dec.Decode(&value)
-}
-
-func MsgPackEncode(value interface{}) ([]byte, error) {
-	return msgpack.Encode(value)
-}
-
-func MsgPackDecode(data []byte, value interface{}) error {
-	return msgpack.Decode(data, value)
+func CborDecode(data []byte, value interface{}) error {
+	return cbor.Unmarshal(data, value)
 }
 
 // encodeKey encodes key values with a type prefix which allows multiple different types

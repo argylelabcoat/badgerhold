@@ -6,6 +6,7 @@ package badgerhold_test
 
 import (
 	"fmt"
+	"math/big"
 	"reflect"
 	"testing"
 	"time"
@@ -97,6 +98,10 @@ func (d *DefaultType) String() string {
 
 type All struct {
 	ATime  time.Time
+	AFloat *big.Float
+	AInt   *big.Int
+	ARat   *big.Rat
+
 	Aint   int
 	Aint8  int8
 	Aint16 int16
@@ -118,7 +123,10 @@ type All struct {
 }
 
 var allCurrent = All{ // current
-	ATime: time.Date(2016, 1, 1, 0, 0, 0, 0, time.Local),
+	ATime:  time.Date(2016, 1, 1, 0, 0, 0, 0, time.Local),
+	AFloat: big.NewFloat(30.5),
+	AInt:   big.NewInt(123),
+	ARat:   big.NewRat(5, 8),
 
 	Aint:   8,
 	Aint8:  8,
@@ -142,7 +150,10 @@ var allCurrent = All{ // current
 
 var allData = []All{
 	All{ // equal
-		ATime: time.Date(2016, 1, 1, 0, 0, 0, 0, time.Local),
+		ATime:  time.Date(2016, 1, 1, 0, 0, 0, 0, time.Local),
+		AFloat: big.NewFloat(30.5),
+		AInt:   big.NewInt(123),
+		ARat:   big.NewRat(5, 8),
 
 		Aint:   8,
 		Aint8:  8,
@@ -163,7 +174,10 @@ var allData = []All{
 		ADefault: DefaultType{"btest"},
 	},
 	All{ // greater
-		ATime: time.Date(2017, 1, 1, 0, 0, 0, 0, time.Local),
+		ATime:  time.Date(2017, 1, 1, 0, 0, 0, 0, time.Local),
+		AFloat: big.NewFloat(31.5),
+		AInt:   big.NewInt(128),
+		ARat:   big.NewRat(14, 16),
 
 		Aint:   9,
 		Aint8:  9,
@@ -184,7 +198,10 @@ var allData = []All{
 		ADefault: DefaultType{"ctest"},
 	},
 	All{ // less
-		ATime: time.Date(2015, 1, 1, 0, 0, 0, 0, time.Local),
+		ATime:  time.Date(2015, 1, 1, 0, 0, 0, 0, time.Local),
+		AFloat: big.NewFloat(30.1),
+		AInt:   big.NewInt(121),
+		ARat:   big.NewRat(1, 4),
 
 		Aint:   4,
 		Aint8:  4,
