@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/timshannon/badgerhold"
+	"github.com/argylelabcoat/badgerhold"
 )
 
 var sortTests = []test{

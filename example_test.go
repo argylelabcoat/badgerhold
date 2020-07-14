@@ -10,8 +10,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/dgraph-io/badger"
-	"github.com/timshannon/badgerhold"
+	"github.com/argylelabcoat/badgerhold"
+	"github.com/dgraph-io/badger/v2"
 )
 
 type Item struct {
