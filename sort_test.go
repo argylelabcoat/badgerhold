@@ -9,7 +9,12 @@ import (
 	"testing"
 
 	"github.com/argylelabcoat/badgerhold"
+	"github.com/fxamacker/cbor/v2"
 )
+
+func init() {
+	badgerhold.CborEncOpts.Time = cbor.TimeRFC3339Nano
+}
 
 var sortTests = []test{
 	test{

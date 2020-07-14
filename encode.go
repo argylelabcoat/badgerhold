@@ -26,13 +26,8 @@ var decode DecodeFunc
 var DefaultEncode = CborEncode
 var DefaultDecode = CborDecode
 
-var cborEncOpts = cbor.CanonicalEncOptions()
+var CborEncOpts = cbor.CanonicalEncOptions()
 var cborEncMode cbor.EncMode
-
-func init() {
-	cborEncOpts.Time = cbor.TimeRFC3339Nano
-	cborEncMode, _ = cborEncOpts.EncMode()
-}
 
 // GobEncode was the default encoding func for badgerhold (Gob)
 func GobEncode(value interface{}) ([]byte, error) {
@@ -62,10 +57,16 @@ func GobDecode(data []byte, value interface{}) error {
 }
 
 func CborEncode(value interface{}) ([]byte, error) {
+	if cborEncMode == nil {
+		cborEncMode, _ = CborEncOpts.EncMode()
+	}
 	return cborEncMode.Marshal(value)
 }
 
 func CborDecode(data []byte, value interface{}) error {
+	if cborEncMode == nil {
+		cborEncMode, _ = CborEncOpts.EncMode()
+	}
 	return cbor.Unmarshal(data, value)
 }
 
