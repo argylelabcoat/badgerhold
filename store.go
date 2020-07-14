@@ -46,8 +46,8 @@ type Options struct {
 // Includes badgers own default options
 var DefaultOptions = Options{
 	Options:          badger.DefaultOptions(""),
-	Encoder:          DefaultEncode,
-	Decoder:          DefaultDecode,
+	Encoder:          MsgPackEncode,
+	Decoder:          MsgPackDecode,
 	SequenceBandwith: 100,
 }
 

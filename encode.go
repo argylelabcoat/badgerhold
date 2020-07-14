@@ -7,6 +7,8 @@ package badgerhold
 import (
 	"bytes"
 	"encoding/gob"
+
+	"github.com/shamaton/msgpack"
 )
 
 // EncodeFunc is a function for encoding a value into bytes
@@ -18,8 +20,8 @@ type DecodeFunc func(data []byte, value interface{}) error
 var encode EncodeFunc
 var decode DecodeFunc
 
-// DefaultEncode is the default encoding func for badgerhold (Gob)
-func DefaultEncode(value interface{}) ([]byte, error) {
+// GobEncode was the default encoding func for badgerhold (Gob)
+func GobEncode(value interface{}) ([]byte, error) {
 	var buff bytes.Buffer
 
 	en := gob.NewEncoder(&buff)
@@ -32,8 +34,8 @@ func DefaultEncode(value interface{}) ([]byte, error) {
 	return buff.Bytes(), nil
 }
 
-// DefaultDecode is the default decoding func for badgerhold (Gob)
-func DefaultDecode(data []byte, value interface{}) error {
+// GobDecode was the default decoding func for badgerhold (Gob)
+func GobDecode(data []byte, value interface{}) error {
 	var buff bytes.Buffer
 	de := gob.NewDecoder(&buff)
 
@@ -43,6 +45,14 @@ func DefaultDecode(data []byte, value interface{}) error {
 	}
 
 	return de.Decode(value)
+}
+
+func MsgPackEncode(value interface{}) ([]byte, error) {
+	return msgpack.Encode(value)
+}
+
+func MsgPackDecode(data []byte, value interface{}) error {
+	return msgpack.Decode(data, value)
 }
 
 // encodeKey encodes key values with a type prefix which allows multiple different types
