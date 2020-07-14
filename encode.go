@@ -7,9 +7,34 @@ package badgerhold
 import (
 	"bytes"
 	"encoding/gob"
+	"reflect"
+	"time"
 
 	"github.com/shamaton/msgpack"
+	"github.com/ugorji/go/codec"
 )
+
+type TimeExt struct{}
+
+func (x TimeExt) ConvertExt(v interface{}) interface{} {
+	v2 := v.(*time.Time) // structs are encoded by passing the ptr
+	return v2.UTC().UnixNano()
+}
+func (x TimeExt) UpdateExt(dest interface{}, v interface{}) {
+	tt := dest.(*time.Time)
+	*tt = time.Unix(0, v.(int64)).UTC()
+}
+
+var (
+	bh codec.BincHandle
+	mh codec.MsgpackHandle
+	ch codec.CborHandle
+)
+
+func init() {
+
+	mh.SetInterfaceExt(reflect.TypeOf(time.Time{}), 1, TimeExt{})
+}
 
 // EncodeFunc is a function for encoding a value into bytes
 type EncodeFunc func(value interface{}) ([]byte, error)
@@ -20,8 +45,14 @@ type DecodeFunc func(data []byte, value interface{}) error
 var encode EncodeFunc
 var decode DecodeFunc
 
-var DefaultEncode = MsgPackEncode
-var DefaultDecode = MsgPackDecode
+// var DefaultEncode = GobEncode
+// var DefaultDecode = GobDecode
+
+var DefaultEncode = CodecMsgPackEncode
+var DefaultDecode = CodecMsgPackDecode
+
+// var DefaultEncode = MsgPackEncode
+// var DefaultDecode = MsgPackDecode
 
 // GobEncode was the default encoding func for badgerhold (Gob)
 func GobEncode(value interface{}) ([]byte, error) {
@@ -48,6 +79,18 @@ func GobDecode(data []byte, value interface{}) error {
 	}
 
 	return de.Decode(value)
+}
+
+func CodecMsgPackEncode(value interface{}) ([]byte, error) {
+	var b []byte
+	enc := codec.NewEncoderBytes(&b, &mh)
+	err := enc.Encode(value)
+	return b, err
+}
+
+func CodecMsgPackDecode(data []byte, value interface{}) error {
+	dec := codec.NewDecoderBytes(data, &mh)
+	return dec.Decode(&value)
 }
 
 func MsgPackEncode(value interface{}) ([]byte, error) {

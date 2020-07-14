@@ -999,7 +999,7 @@ func TestQueryIterKeyCacheOverflow(t *testing.T) {
 
 				err := store.Find(&result, tests[i])
 				if err != nil {
-					t.Fatalf("Error getting data from badgerhold: %s", err)
+					t.Fatalf("Error getting data from badgerhold: %s %v", err, i)
 				}
 
 				for i := stop; i < 10; i++ {
